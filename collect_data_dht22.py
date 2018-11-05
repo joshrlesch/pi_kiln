@@ -1,9 +1,10 @@
 import datetime
+import os
 import time
 import sqlite3
 import Adafruit_DHT
 
-dbname = 'sensorsData.db'
+db_path = os.path.join(os.getcwd(), 'instance/pi_kiln.sqlite')
 sampleFreq = 60  # time in seconds
 
 
@@ -21,12 +22,13 @@ def getDHTdata():
 
 # log sensor data on database
 def logData(temp, hum):
-    conn = sqlite3.connect(dbname)
+    conn = sqlite3.connect(db_path)
     curs = conn.cursor()
 
     cur_time = datetime.datetime.now()
     sensor = "1"
-    curs.execute("INSERT INTO environment (humidity, temp, sensor, date) VALUES (?,?,?,?)", (temp, hum, sensor, cur_time))
+    print('Temp={0:0.1f}*F  Humidity={1:0.1f}%'.format(temp * 1.8 + 32, hum))
+    curs.execute("INSERT INTO environment (humidity, temp, sensor, date) VALUES (?,?,?,?)", (temp * 1.8 + 32, hum, sensor, cur_time))
     conn.commit()
     conn.close()
 
